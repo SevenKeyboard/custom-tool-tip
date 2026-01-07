@@ -48,13 +48,13 @@ customToolTip(text, x := "", y := "", title := ""
         ,"UInt",ttStyles | TTS_CLOSE * !!CloseButton | TTS_BALLOON * !!isBallon
         ,"Int",0, "Int",0, "Int",0, "Int",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr")
     winExist("ahk_id " . hWnd)
-    if (textColor !== 0 || backColor !== "") {
+    if (textColor !== 0 || backColor !== "")    {
         dllCall("UxTheme.dll\SetWindowTheme", "Ptr",hWnd, "Ptr",0, "UShortP",empty := 0, "Ptr")
         byteSwap := func("DllCall").bind("msvcr100\_byteswap_ulong", "UInt")
         sendMessage TTM_SETTIPBKCOLOR   ,byteSwap.call(backColor << 8)
         sendMessage TTM_SETTIPTEXTCOLOR ,byteSwap.call(textColor << 8)
     }
-    if (fontName || fontOptions) {
+    if (fontName || fontOptions)    {
         gui New
         gui Font, % fontOptions, % fontName
         gui Add, Text, hwndhText
@@ -73,7 +73,7 @@ customToolTip(text, x := "", y := "", title := ""
     numPut(&text, TOOLINFO, 24 + A_PtrSize * 3)
 
     sendMessage TTM_SETTITLE        ,icon   ,&title
-    sendMessage TTM_TRACKPOSITION   ,       ,(x & 0xFFFF) | ((y & 0xFFFF) << 16) ;  x | (y << 16)
+    sendMessage TTM_TRACKPOSITION   ,       ,(x & 0xFFFF) | ((y & 0xFFFF) << 16)
     sendMessage TTM_SETMAXTIPWIDTH  ,       ,maxWidth
     sendMessage TTM_ADDTOOL         ,       ,&TOOLINFO
     sendMessage TTM_UPDATETIPTEXT   ,       ,&TOOLINFO
