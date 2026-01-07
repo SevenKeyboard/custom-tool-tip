@@ -37,14 +37,14 @@ customToolTip(text, x := "", y := "", title := ""
     detectHiddenWindows On
     defGuiPrev := A_DefaultGui, lastFoundPrev := winExist()
     hWnd := dllCall("User32.dll\CreateWindowEx","UInt",exStyles, "Str","tooltips_class32", "Str",""
-                                    ,"UInt",ttStyles | TTS_CLOSE * !!CloseButton | TTS_BALLOON * !!isBallon
-                                    ,"Int",0, "Int",0, "Int",0, "Int",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr")
+        ,"UInt",ttStyles | TTS_CLOSE * !!CloseButton | TTS_BALLOON * !!isBallon
+        ,"Int",0, "Int",0, "Int",0, "Int",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr")
     winExist("ahk_id " hWnd)
     if (textColor !== 0 || backColor !== "") {
         dllCall("UxTheme.dll\SetWindowTheme", "Ptr",hWnd, "Ptr",0, "UShortP",empty := 0, "Ptr")
         byteSwap := func("DllCall").bind("msvcr100\_byteswap_ulong", "UInt")
-        sendMessage TTM_SETTIPBKCOLOR  , byteSwap.call(backColor << 8)
-        sendMessage TTM_SETTIPTEXTCOLOR, byteSwap.call(textColor << 8)
+        sendMessage TTM_SETTIPBKCOLOR   ,byteSwap.call(backColor << 8)
+        sendMessage TTM_SETTIPTEXTCOLOR ,byteSwap.call(textColor << 8)
     }
     if (fontName || fontOptions) {
         gui New
@@ -59,17 +59,17 @@ customToolTip(text, x := "", y := "", title := ""
         dllCall("User32.dll\GetCursorPos", "Int64P",pt, "Int")
     (x == "" && x := (pt & 0xFFFFFFFF) + 15), (y == "" && y := (pt >> 32) + 15)
 
-    varSetCapacity(TOOLINFO, sz := 24 + A_PtrSize*6, 0)
+    varSetCapacity(TOOLINFO, sz := 24 + A_PtrSize * 6, 0)
     numPut(sz, TOOLINFO)
     numPut(TTF_TRACK | TTF_ABSOLUTE * !isBallon, TOOLINFO, 4)
-    numPut(&text, TOOLINFO, 24 + A_PtrSize*3)
+    numPut(&text, TOOLINFO, 24 + A_PtrSize * 3)
 
-    sendMessage TTM_SETTITLE        , icon  ,&title
+    sendMessage TTM_SETTITLE        ,icon   ,&title
     sendMessage TTM_TRACKPOSITION   ,       ,(x & 0xFFFF) | ((y & 0xFFFF) << 16) ;  x | (y << 16)
     sendMessage TTM_SETMAXTIPWIDTH  ,       ,maxWidth
     sendMessage TTM_ADDTOOL         ,       ,&TOOLINFO
     sendMessage TTM_UPDATETIPTEXT   ,       ,&TOOLINFO
-    sendMessage TTM_TRACKACTIVATE   , true  ,&TOOLINFO
+    sendMessage TTM_TRACKACTIVATE   ,true   ,&TOOLINFO
     if (timeout)    {
         timer := func("DllCall").bind("User32.dll\DestroyWindow", "Ptr",hWnd, "Int")
         setTimer % timer, % "-" . timeout
