@@ -39,7 +39,7 @@ customToolTip(text, x := "", y := "", title := ""
     hWnd := dllCall("User32.dll\CreateWindowEx","UInt",exStyles, "Str","tooltips_class32", "Str",""
                                     ,"UInt",ttStyles | TTS_CLOSE * !!CloseButton | TTS_BALLOON * !!isBallon
                                     ,"Int",0, "Int",0, "Int",0, "Int",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr")
-    winExist("ahk_id" hWnd)
+    winExist("ahk_id " hWnd)
     if (textColor !== 0 || backColor !== "") {
         dllCall("UxTheme.dll\SetWindowTheme", "Ptr",hWnd, "Ptr",0, "UShortP",empty := 0, "Ptr")
         byteSwap := func("DllCall").bind("msvcr100\_byteswap_ulong", "UInt")
@@ -74,7 +74,7 @@ customToolTip(text, x := "", y := "", title := ""
         timer := func("DllCall").bind("User32.dll\DestroyWindow", "Ptr",hWnd, "Int")
         setTimer % timer, % "-" . timeout
     }
-    winExist("ahk_id" . lastFoundPrev)
+    winExist("ahk_id " lastFoundPrev)
     detectHiddenWindows % dhwPrev
     return hWnd
 }
