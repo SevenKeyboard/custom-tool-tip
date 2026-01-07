@@ -6,6 +6,14 @@
 ; Original Author: teadrinker (2020)
 ; Maintainer: SevenKeyboard Ltd. (2026)
 ;==============================================================
+class VersionManager_customToolTip
+{
+    static _ := VersionManager_customToolTip._init()
+    _init()    {
+        global
+        CUSTOMTOOLTIP_VERSION := "1.0.0"
+    }
+}
 customToolTip(text, x := "", y := "", title := ""
     ,icon := 0 ;  can be 1 — Info, 2 — Warning, 3 — Error, if greater than 3 — hIcon
     ,transparent := false
@@ -39,7 +47,7 @@ customToolTip(text, x := "", y := "", title := ""
     hWnd := dllCall("User32.dll\CreateWindowEx","UInt",exStyles, "Str","tooltips_class32", "Str",""
         ,"UInt",ttStyles | TTS_CLOSE * !!CloseButton | TTS_BALLOON * !!isBallon
         ,"Int",0, "Int",0, "Int",0, "Int",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr")
-    winExist("ahk_id " hWnd)
+    winExist("ahk_id " . hWnd)
     if (textColor !== 0 || backColor !== "") {
         dllCall("UxTheme.dll\SetWindowTheme", "Ptr",hWnd, "Ptr",0, "UShortP",empty := 0, "Ptr")
         byteSwap := func("DllCall").bind("msvcr100\_byteswap_ulong", "UInt")
@@ -50,7 +58,7 @@ customToolTip(text, x := "", y := "", title := ""
         gui New
         gui Font, % fontOptions, % fontName
         gui Add, Text, hwndhText
-        sendMessage, WM_GETFONT,,,, % "ahk_id " hText
+        sendMessage, WM_GETFONT,,,, % "ahk_id " . hText
         sendMessage, WM_SETFONT, errorLevel
         gui Destroy
         gui %defGuiPrev%: Default
@@ -74,7 +82,7 @@ customToolTip(text, x := "", y := "", title := ""
         timer := func("DllCall").bind("User32.dll\DestroyWindow", "Ptr",hWnd, "Int")
         setTimer % timer, % "-" . timeout
     }
-    winExist("ahk_id " lastFoundPrev)
+    winExist("ahk_id " . lastFoundPrev)
     detectHiddenWindows % dhwPrev
     return hWnd
 }
