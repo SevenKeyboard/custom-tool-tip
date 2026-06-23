@@ -11,7 +11,7 @@ class VersionManager_customToolTip
     static _ := VersionManager_customToolTip._init()
     _init()    {
         global
-        CUSTOMTOOLTIP_VERSION := "1.0.0"
+        CUSTOMTOOLTIP_VERSION := "1.0.1"
     }
 }
 customToolTip(text, x := "", y := "", title := ""
@@ -20,9 +20,9 @@ customToolTip(text, x := "", y := "", title := ""
     ,closeButton := false, backColor := "", textColor := 0
     ,fontName := "", fontOptions := "" ;  like in GUI
     ,textDirection := "LTR"
-    ,isBallon := false, timeout := "", maxWidth := 600)
+    ,isBalloon := false, timeout := "", maxWidth := 600)
 {
-    static ttStyles := (TTS_NOPREFIX := 2) | (TTS_ALWAYSTIP := 1), TTS_BALLOON := 0x40, TTS_CLOSE := 0x80
+    static ttStyles := (WS_POPUP := 0x80000000) | (TTS_NOPREFIX := 2) | (TTS_ALWAYSTIP := 1), TTS_BALLOON := 0x40, TTS_CLOSE := 0x80
         ,TTF_TRACK := 0x20, TTF_ABSOLUTE := 0x80
         ,TTM_SETMAXTIPWIDTH:= 0x418, TTM_TRACKACTIVATE := 0x411, TTM_TRACKPOSITION := 0x412
         ,TTM_SETTIPBKCOLOR := 0x413, TTM_SETTIPTEXTCOLOR := 0x414
@@ -45,21 +45,26 @@ customToolTip(text, x := "", y := "", title := ""
     detectHiddenWindows On
     defGuiPrev := A_DefaultGui, lastFoundPrev := winExist()
     hWnd := dllCall("User32.dll\CreateWindowEx","UInt",exStyles, "Str","tooltips_class32", "Str",""
-        ,"UInt",ttStyles | TTS_CLOSE * !!CloseButton | TTS_BALLOON * !!isBallon
+        ,"UInt",ttStyles | TTS_CLOSE * !!CloseButton | TTS_BALLOON * !!isBalloon
         ,"Int",0, "Int",0, "Int",0, "Int",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr",0, "Ptr")
+    if (!hWnd)    {
+        detectHiddenWindows % dhwPrev
+        return 0
+    }
     winExist("ahk_id " . hWnd)
     if (textColor !== 0 || backColor !== "")    {
-        dllCall("UxTheme.dll\SetWindowTheme", "Ptr",hWnd, "Ptr",0, "UShortP",empty := 0, "Ptr")
-        byteSwap := func("DllCall").bind("msvcr100\_byteswap_ulong", "UInt")
-        sendMessage TTM_SETTIPBKCOLOR   ,byteSwap.call(backColor << 8)
-        sendMessage TTM_SETTIPTEXTCOLOR ,byteSwap.call(textColor << 8)
+        dllCall("UxTheme.dll\SetWindowTheme", "Ptr",hWnd, "WStr","", "WStr","", "Int")
+        if (backColor !== "")
+            sendMessage TTM_SETTIPBKCOLOR, rgbToColorRef_3FC38BAA(backColor)
+        if (textColor !== 0)
+            sendMessage TTM_SETTIPTEXTCOLOR, rgbToColorRef_3FC38BAA(textColor)
     }
     if (fontName || fontOptions)    {
         gui New
         gui Font, % fontOptions, % fontName
         gui Add, Text, hwndhText
-        sendMessage, WM_GETFONT,,,, % "ahk_id " . hText
-        sendMessage, WM_SETFONT, errorLevel
+        sendMessage WM_GETFONT,,,, % "ahk_id " . hText
+        sendMessage WM_SETFONT, errorLevel
         gui Destroy
         gui %defGuiPrev%: Default
     }
@@ -69,7 +74,7 @@ customToolTip(text, x := "", y := "", title := ""
 
     varSetCapacity(TOOLINFO, sz := 24 + A_PtrSize * 6, 0)
     numPut(sz, TOOLINFO)
-    numPut(TTF_TRACK | TTF_ABSOLUTE * !isBallon, TOOLINFO, 4)
+    numPut(TTF_TRACK | TTF_ABSOLUTE * !isBalloon, TOOLINFO, 4)
     numPut(&text, TOOLINFO, 24 + A_PtrSize * 3)
 
     sendMessage TTM_SETTITLE        ,icon   ,&title
@@ -85,4 +90,7 @@ customToolTip(text, x := "", y := "", title := ""
     winExist("ahk_id " . lastFoundPrev)
     detectHiddenWindows % dhwPrev
     return hWnd
+}
+rgbToColorRef_3FC38BAA(rgb)    {
+    return ((rgb & 0xFF) << 16) | (rgb & 0xFF00) | ((rgb >>> 16) & 0xFF)
 }
